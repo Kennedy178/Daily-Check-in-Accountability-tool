@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beast Mode Daily Check-In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-deep: #0a0a0f;
+      --bg-surface: #12121a;
+      --bg-elevated: #1a1a26;
+      --accent-orange: #ff4500;
+      --accent-glow: rgba(255, 69, 0, 0.15);
+      --text-primary: #e8e8f0;
+      --text-muted: #8a8a9a;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --success: #00ff88;
+      --warning: #ffaa00;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0f0a15 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 20px;
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 40px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+    }
+
+    h1 {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ff4500 0%, #ff8844 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+      position: relative;
+      animation: slideDown 0.6s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .tagline {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      font-style: italic;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+      animation: slideDown 0.6s ease-out 0.2s both;
+    }
+
+    /* Action buttons */
+    .header-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 25px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .action-btn:hover {
+      border-color: var(--accent-orange);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 69, 0, 0.15);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+      animation: slideUp 0.8s ease-out 0.3s both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 25px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-orange), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255, 69, 0, 0.3);
+      box-shadow: 0 20px 60px rgba(255, 69, 0, 0.1);
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--accent-orange);
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+    }
+
+    .stat-value.streak {
+      animation: glow 2s ease-in-out infinite;
+    }
+
+    @keyframes glow {
+      0%, 100% { text-shadow: 0 0 20px rgba(255, 69, 0, 0.3); }
+      50% { text-shadow: 0 0 30px rgba(255, 69, 0, 0.6); }
+    }
+
+    /* Insights Panel */
+    .insights-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 25px;
+      padding: 30px;
+      margin-bottom: 40px;
+      animation: slideUp 0.8s ease-out 0.4s both;
+    }
+
+    .insights-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .insights-header h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .insight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .insight-item {
+      background: var(--bg-deep);
+      border-radius: 15px;
+      padding: 20px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .insight-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .insight-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--accent-orange);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .insight-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* Form */
+    .form-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 30px;
+      padding: 40px;
+      margin-bottom: 50px;
+      position: relative;
+      overflow: hidden;
+      animation: slideUp 0.8s ease-out 0.5s both;
+    }
+
+    .form-container::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 69, 0, 0.03) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    form {
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-section {
+      margin-bottom: 35px;
+    }
+
+    .form-section.compact {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    label .emoji {
+      margin-right: 6px;
+      font-size: 1.1em;
+    }
+
+    input[type="date"],
+    input[type="number"],
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      background: var(--bg-deep);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      outline: none;
+    }
+
+    input[type="date"]:focus,
+    input[type="number"]:focus,
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--accent-orange);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.6;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    /* Quick toggles */
+    .toggle-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .toggle-btn {
+      background: var(--bg-deep);
+      border: 2px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .toggle-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--accent-orange), #ff8844);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .toggle-btn span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .toggle-btn:hover {
+      border-color: var(--accent-orange);
+      transform: translateY(-2px);
+    }
+
+    .toggle-btn.active {
+      border-color: var(--accent-orange);
+      color: var(--text-primary);
+      background: var(--accent-glow);
+    }
+
+    .toggle-btn.active::before {
+      opacity: 0.15;
+    }
+
+    /* Submit button */
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-orange) 0%, #ff6622 100%);
+      color: white;
+      border: none;
+      padding: 18px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.02em;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 50px rgba(255, 69, 0, 0.4);
+    }
+
+    .submit-btn:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .submit-btn:active {
+      transform: translateY(-1px);
+    }
+
+    /* History */
+    .history-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 30px;
+      overflow: hidden;
+      animation: slideUp 0.8s ease-out 0.7s both;
+    }
+
+    .history-header {
+      padding: 30px 40px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .history-header h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .history-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--bg-deep);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th {
+      padding: 18px 20px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    td {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+    }
+
+    tbody tr {
+      transition: background 0.2s;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .table-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .table-mood {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .mood-high { color: var(--success); }
+    .mood-mid { color: var(--warning); }
+    .mood-low { color: #ff4444; }
+
+    .table-text {
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .delete-btn {
+      background: none;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+
+    .delete-btn:hover {
+      border-color: #ff4444;
+      color: #ff4444;
+      background: rgba(255, 68, 68, 0.1);
+    }
+
+    .empty-state {
+      padding: 60px 40px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.3;
+    }
+
+    /* Slider input */
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: linear-gradient(to right, #ff4444 0%, var(--warning) 50%, var(--success) 100%);
+      outline: none;
+      margin-top: 10px;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--text-primary);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--text-primary);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      border: none;
+    }
+
+    .range-value {
+      display: inline-block;
+      margin-left: 15px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-orange);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 25px;
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      animation: modalSlide 0.3s ease-out;
+    }
+
+    @keyframes modalSlide {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+
+    .modal-header h3 {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 5px 10px;
+      transition: color 0.2s;
+    }
+
+    .close-modal:hover {
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .modal-body textarea {
+      margin-top: 15px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 25px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid var(--border-subtle);
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .modal-btn.primary {
+      background: var(--accent-orange);
+      color: white;
+      border-color: var(--accent-orange);
+    }
+
+    .modal-btn.primary:hover {
+      background: #ff5722;
+      transform: translateY(-2px);
+    }
+
+    .modal-btn.secondary {
+      background: var(--bg-deep);
+      color: var(--text-primary);
+    }
+
+    .modal-btn.secondary:hover {
+      border-color: var(--accent-orange);
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--bg-surface);
+      border: 1px solid var(--accent-orange);
+      border-radius: 15px;
+      padding: 15px 25px;
+      color: var(--text-primary);
+      font-weight: 600;
+      box-shadow: 0 10px 40px rgba(255, 69, 0, 0.3);
+      z-index: 2000;
+      transform: translateX(400px);
+      transition: transform 0.3s;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+
+      .form-container, .modal-content {
+        padding: 25px;
+      }
+
+      .history-header {
+        padding: 20px 25px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .stat-card {
+        padding: 20px 15px;
+      }
+
+      th, td {
+        padding: 12px 15px;
+        font-size: 0.85rem;
+      }
+
+      .table-text {
+        max-width: 150px;
+      }
+
+      .insights-panel {
+        padding: 20px;
+      }
+
+      .insight-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Success animation */
+    @keyframes successPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .success-flash {
+      animation: successPulse 0.4s ease-out;
+    }
+
+    /* Weekly summary */
+    .weekly-summary {
+      background: var(--bg-deep);
+      border-radius: 15px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .summary-value {
+      color: var(--accent-orange);
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <h1>🔥 Beast Mode Check-In</h1>
+      <p class="tagline">"No rescue is coming. You are the plan. You are the backup."</p>
+      <div class="header-actions">
+        <button class="action-btn" onclick="exportData()">📥 Export Data</button>
+        <button class="action-btn" onclick="importData()">📤 Import Data</button>
+        <button class="action-btn" onclick="showWeeklySummary()">📊 Weekly Summary</button>
+        <button class="action-btn" onclick="clearAllData()">🗑️ Clear All</button>
+      </div>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Avg Mood</div>
+        <div class="stat-value" id="avgMood">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Sleep</div>
+        <div class="stat-value" id="avgSleep">--<span style="font-size: 1.2rem;">h</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Current Streak</div>
+        <div class="stat-value streak" id="streak">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Days</div>
+        <div class="stat-value" id="totalDays">--</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Best Streak</div>
+        <div class="stat-value" id="bestStreak">--</div>
+      </div>
+    </div>
+
+    <!-- Insights -->
+    <div class="insights-panel">
+      <div class="insights-header">
+        <h3>💡 Your Insights</h3>
+      </div>
+      <div class="insight-grid">
+        <div class="insight-item">
+          <div class="insight-label">Creation Rate</div>
+          <div class="insight-value" id="creationRate">--%</div>
+          <div class="insight-desc">Days you created vs consumed</div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-label">Deep Work Rate</div>
+          <div class="insight-value" id="deepWorkRate">--%</div>
+          <div class="insight-desc">Days with beast mode or solid effort</div>
+        </div>
+        <div class="insight-item">
+          <div class="insight-label">Consistency Score</div>
+          <div class="insight-value" id="consistencyScore">--</div>
+          <div class="insight-desc">Based on daily check-ins</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="form-container">
+      <form id="checkinForm">
+        <!-- Date -->
+        <div class="form-section compact">
+          <label><span class="emoji">📅</span>Date</label>
+          <input type="date" id="date" required>
+        </div>
+
+        <!-- Create or Consume -->
+        <div class="form-section">
+          <label><span class="emoji">⚡</span>Did I create or consume today?</label>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn" data-group="mode" data-value="created">
+              <span>💪 Created</span>
+            </button>
+            <button type="button" class="toggle-btn" data-group="mode" data-value="balanced">
+              <span>⚖️ Balanced</span>
+            </button>
+            <button type="button" class="toggle-btn" data-group="mode" data-value="consumed">
+              <span>📱 Consumed</span>
+            </button>
+            <button type="button" class="toggle-btn" data-group="mode" data-value="rested">
+              <span>😴 Just rested</span>
+            </button>
+          </div>
+          <input type="hidden" id="createConsume" required>
+        </div>
+
+        <!-- What did I create -->
+        <div class="form-section">
+          <label><span class="emoji">💭</span>What did I create today?</label>
+          <textarea id="createDetails" placeholder="Describe what you built or worked on... (type 'nothing' if you just rested)"></textarea>
+        </div>
+
+        <!-- Deep work -->
+        <div class="form-section">
+          <label><span class="emoji">🎯</span>Deep work status</label>
+          <div class="toggle-group">
+            <button type="button" class="toggle-btn" data-group="deepwork" data-value="beast">
+              <span>🔥 Beast unleashed</span>
+            </button>
+            <button type="button" class="toggle-btn" data-group="deepwork" data-value="solid">
+              <span>✅ Solid effort</span>
+            </button>
+            <button type="button" class="toggle-btn" data-group="deepwork" data-value="skip">
+              <span>⭕ Skipped</span>
+            </button>
+          </div>
+          <input type="hidden" id="deepWork" required>
+        </div>
+
+        <!-- Win today -->
+        <div class="form-section">
+          <label><span class="emoji">🏆</span>Win today</label>
+          <textarea id="smallWin" required placeholder="Keep it simple, what's one thing you're proud of today?"></textarea>
+        </div>
+
+        <!-- Tomorrow focus -->
+        <div class="form-section">
+          <label><span class="emoji">🎯</span>Tomorrow's focus</label>
+          <textarea id="improveTomorrow" required placeholder="What's the one thing to improve or focus on?"></textarea>
+        </div>
+
+        <!-- Mood & Sleep -->
+        <div class="form-row">
+          <div class="form-section compact">
+            <label><span class="emoji">😊</span>Mood <span class="range-value" id="moodValue">5</span></label>
+            <input type="range" id="mood" min="1" max="10" value="5" required>
+          </div>
+          <div class="form-section compact">
+            <label><span class="emoji">😴</span>Sleep hours</label>
+            <input type="number" id="sleepHours" min="0" max="24" step="0.5" placeholder="7.5" required>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Save Check-In 🚀</button>
+      </form>
+    </div>
+
+    <!-- History -->
+    <div class="history-container">
+      <div class="history-header">
+        <h2>📊 Your Journey</h2>
+        <div class="history-controls">
+          <input type="text" id="searchHistory" placeholder="Search..." style="padding: 8px 15px; width: 200px;">
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Mode</th>
+              <th>Win Today</th>
+              <th>Tomorrow's Focus</th>
+              <th>Mood</th>
+              <th>Sleep</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="7" class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <p>No check-ins yet. Start your journey today!</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal" id="weeklySummaryModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📊 Weekly Summary</h3>
+        <button class="close-modal" onclick="closeModal('weeklySummaryModal')">×</button>
+      </div>
+      <div class="modal-body" id="weeklySummaryContent">
+        <!-- Content will be injected -->
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="importModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>📤 Import Data</h3>
+        <button class="close-modal" onclick="closeModal('importModal')">×</button>
+      </div>
+      <div class="modal-body">
+        <p>Paste your exported data below:</p>
+        <textarea id="importData" rows="10" style="width: 100%; margin-top: 15px;" placeholder="Paste JSON data here..."></textarea>
+        <div class="modal-actions">
+          <button class="modal-btn secondary" onclick="closeModal('importModal')">Cancel</button>
+          <button class="modal-btn primary" onclick="processImport()">Import</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // State management
+    let checkins = JSON.parse(localStorage.getItem('beastModeCheckins')) || [];
+    let selectedValues = {
+      mode: null,
+      deepwork: null
+    };
+
+    // DOM elements
+    const form = document.getElementById('checkinForm');
+    const dateInput = document.getElementById('date');
+    const moodSlider = document.getElementById('mood');
+    const moodValueDisplay = document.getElementById('moodValue');
+    const tableBody = document.getElementById('tableBody');
+    const avgMoodEl = document.getElementById('avgMood');
+    const avgSleepEl = document.getElementById('avgSleep');
+    const streakEl = document.getElementById('streak');
+    const totalDaysEl = document.getElementById('totalDays');
+    const bestStreakEl = document.getElementById('bestStreak');
+    const creationRateEl = document.getElementById('creationRate');
+    const deepWorkRateEl = document.getElementById('deepWorkRate');
+    const consistencyScoreEl = document.getElementById('consistencyScore');
+    const searchInput = document.getElementById('searchHistory');
+
+    // Initialize
+    init();
+
+    function init() {
+      // Set today's date
+      dateInput.valueAsDate = new Date();
+      
+      // Setup toggle buttons
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', handleToggle);
+      });
+
+      // Mood slider
+      moodSlider.addEventListener('input', (e) => {
+        moodValueDisplay.textContent = e.target.value;
+      });
+
+      // Form submit
+      form.addEventListener('submit', handleSubmit);
+
+      // Search functionality
+      searchInput.addEventListener('input', filterHistory);
+
+      // Render
+      renderHistory();
+      updateStats();
+    }
+
+    function handleToggle(e) {
+      e.preventDefault();
+      const btn = e.currentTarget;
+      const group = btn.dataset.group;
+      const value = btn.dataset.value;
+
+      // Deselect others in group
+      document.querySelectorAll(`[data-group="${group}"]`).forEach(b => {
+        b.classList.remove('active');
+      });
+
+      // Select this one
+      btn.classList.add('active');
+      selectedValues[group] = value;
+
+      // Update hidden input
+      const hiddenInput = document.getElementById(group === 'mode' ? 'createConsume' : 'deepWork');
+      hiddenInput.value = value;
+    }
+
+    function handleSubmit(e) {
+      e.preventDefault();
+
+      // Validate toggles
+      if (!selectedValues.mode || !selectedValues.deepwork) {
+        showToast('Please select your mode and deep work status!');
+        return;
+      }
+
+      const newEntry = {
+        date: dateInput.value,
+        createConsume: selectedValues.mode,
+        createDetails: document.getElementById('createDetails').value.trim(),
+        deepWork: selectedValues.deepwork,
+        smallWin: document.getElementById('smallWin').value.trim(),
+        improveTomorrow: document.getElementById('improveTomorrow').value.trim(),
+        mood: parseInt(moodSlider.value),
+        sleepHours: parseFloat(document.getElementById('sleepHours').value)
+      };
+
+      // Check for duplicate date
+      if (checkins.some(e => e.date === newEntry.date)) {
+        if (!confirm('You already have a check-in for this date. Overwrite?')) {
+          return;
+        }
+        checkins = checkins.filter(e => e.date !== newEntry.date);
+      }
+
+      checkins.push(newEntry);
+      saveData();
+
+      // Success feedback
+      showToast('Check-in saved! 🎉');
+      const btn = e.target.querySelector('.submit-btn');
+      btn.classList.add('success-flash');
+      setTimeout(() => btn.classList.remove('success-flash'), 400);
+
+      // Reset
+      form.reset();
+      dateInput.valueAsDate = new Date();
+      moodValueDisplay.textContent = '5';
+      selectedValues = { mode: null, deepwork: null };
+      document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    }
+
+    function saveData() {
+      localStorage.setItem('beastModeCheckins', JSON.stringify(checkins));
+      renderHistory();
+      updateStats();
+    }
+
+    function renderHistory(filter = '') {
+      const filtered = filter 
+        ? checkins.filter(e => 
+            e.date.includes(filter) || 
+            e.smallWin.toLowerCase().includes(filter.toLowerCase()) ||
+            e.improveTomorrow.toLowerCase().includes(filter.toLowerCase())
+          )
+        : checkins;
+
+      if (filtered.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">
+              <div class="empty-state-icon">📋</div>
+              <p>${filter ? 'No matches found.' : 'No check-ins yet. Start your journey today!'}</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      tableBody.innerHTML = sorted.map(entry => {
+        const moodClass = entry.mood >= 8 ? 'mood-high' : entry.mood >= 5 ? 'mood-mid' : 'mood-low';
+        const originalIndex = checkins.findIndex(e => e.date === entry.date);
+        const modeEmoji = getModeEmoji(entry.createConsume);
+
+        return `
+          <tr>
+            <td class="table-date">${formatDate(entry.date)}</td>
+            <td>${modeEmoji} ${capitalizeFirst(entry.createConsume)}</td>
+            <td class="table-text" title="${entry.smallWin}">${entry.smallWin}</td>
+            <td class="table-text" title="${entry.improveTomorrow}">${entry.improveTomorrow}</td>
+            <td class="table-mood ${moodClass}">${entry.mood}/10</td>
+            <td>${entry.sleepHours}h</td>
+            <td><button class="delete-btn" onclick="deleteEntry(${originalIndex})">Delete</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterHistory() {
+      renderHistory(searchInput.value);
+    }
+
+    function getModeEmoji(mode) {
+      const emojis = {
+        'created': '💪',
+        'balanced': '⚖️',
+        'consumed': '📱',
+        'rested': '😴'
+      };
+      return emojis[mode] || '';
+    }
+
+    function capitalizeFirst(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function formatDate(dateStr) {
+      const date = new Date(dateStr + 'T00:00:00');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const checkDate = new Date(date);
+      checkDate.setHours(0, 0, 0, 0);
+      
+      const diffTime = today - checkDate;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) return 'Today';
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays} days ago`;
+      
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function deleteEntry(index) {
+      if (confirm('Delete this check-in?')) {
+        checkins.splice(index, 1);
+        saveData();
+        showToast('Check-in deleted');
+      }
+    }
+
+    function updateStats() {
+      if (checkins.length === 0) {
+        avgMoodEl.textContent = '--';
+        avgSleepEl.textContent = '--';
+        streakEl.textContent = '0';
+        totalDaysEl.textContent = '0';
+        bestStreakEl.textContent = '0';
+        creationRateEl.textContent = '--%';
+        deepWorkRateEl.textContent = '--%';
+        consistencyScoreEl.textContent = '--';
+        return;
+      }
+
+      // Total days
+      totalDaysEl.textContent = checkins.length;
+
+      // Average mood & sleep
+      const totalMood = checkins.reduce((sum, e) => sum + e.mood, 0);
+      const avgMood = (totalMood / checkins.length).toFixed(1);
+      const totalSleep = checkins.reduce((sum, e) => sum + e.sleepHours, 0);
+      const avgSleep = (totalSleep / checkins.length).toFixed(1);
+
+      avgMoodEl.textContent = avgMood;
+      avgSleepEl.textContent = avgSleep;
+
+      // Current streak
+      const sorted = [...checkins].sort((a, b) => new Date(a.date) - new Date(b.date));
+      let currentStreak = 0;
+      let maxStreak = 0;
+      let tempStreak = 0;
+      
+      for (let i = sorted.length - 1; i >= 0; i--) {
+        const entry = sorted[i];
+        if (entry.mood >= 5 && entry.deepWork !== 'skip') {
+          if (i === sorted.length - 1) currentStreak++;
+          tempStreak++;
+          maxStreak = Math.max(maxStreak, tempStreak);
+        } else {
+          if (i === sorted.length - 1) break;
+          tempStreak = 0;
+        }
+      }
+
+      streakEl.textContent = currentStreak;
+      bestStreakEl.textContent = maxStreak;
+
+      // Creation rate
+      const createdCount = checkins.filter(e => e.createConsume === 'created' || e.createConsume === 'balanced').length;
+      const creationRate = ((createdCount / checkins.length) * 100).toFixed(0);
+      creationRateEl.textContent = creationRate + '%';
+
+      // Deep work rate
+      const deepWorkCount = checkins.filter(e => e.deepWork === 'beast' || e.deepWork === 'solid').length;
+      const deepWorkRate = ((deepWorkCount / checkins.length) * 100).toFixed(0);
+      deepWorkRateEl.textContent = deepWorkRate + '%';
+
+      // Consistency score (based on frequency of check-ins)
+      const daysSinceFirst = Math.floor((new Date() - new Date(sorted[0].date)) / (1000 * 60 * 60 * 24));
+      const consistency = daysSinceFirst > 0 ? ((checkins.length / daysSinceFirst) * 100).toFixed(0) : 100;
+      consistencyScoreEl.textContent = Math.min(consistency, 100) + '%';
+    }
+
+    // Export/Import functions
+    function exportData() {
+      const dataStr = JSON.stringify(checkins, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `beast-mode-data-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast('Data exported successfully! 🔥');
+    }
+
+    function importData() {
+      document.getElementById('importModal').classList.add('active');
+    }
+
+    function processImport() {
+      const importText = document.getElementById('importData').value.trim();
+      if (!importText) {
+        showToast('Please paste your data first');
+        return;
+      }
+
+      try {
+        const importedData = JSON.parse(importText);
+        if (!Array.isArray(importedData)) {
+          throw new Error('Invalid data format');
+        }
+
+        // Merge with existing data
+        const merged = [...checkins];
+        importedData.forEach(entry => {
+          const exists = merged.findIndex(e => e.date === entry.date);
+          if (exists >= 0) {
+            merged[exists] = entry; // Update existing
+          } else {
+            merged.push(entry); // Add new
+          }
+        });
+
+        checkins = merged;
+        saveData();
+        closeModal('importModal');
+        document.getElementById('importData').value = '';
+        showToast('Data imported successfully! 📤');
+      } catch (error) {
+        showToast('Invalid data format. Please check and try again.');
+      }
+    }
+
+    function showWeeklySummary() {
+      const now = new Date();
+      const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+      const weekData = checkins.filter(e => new Date(e.date) >= weekAgo);
+
+      if (weekData.length === 0) {
+        showToast('No data for the past week');
+        return;
+      }
+
+      const avgMood = (weekData.reduce((sum, e) => sum + e.mood, 0) / weekData.length).toFixed(1);
+      const avgSleep = (weekData.reduce((sum, e) => sum + e.sleepHours, 0) / weekData.length).toFixed(1);
+      const createdDays = weekData.filter(e => e.createConsume === 'created').length;
+      const beastDays = weekData.filter(e => e.deepWork === 'beast').length;
+
+      const summaryHTML = `
+        <p style="margin-bottom: 20px;">Here's your performance for the last 7 days:</p>
+        <div class="weekly-summary">
+          <div class="summary-row">
+            <span class="summary-label">Check-ins completed</span>
+            <span class="summary-value">${weekData.length} days</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Average mood</span>
+            <span class="summary-value">${avgMood}/10</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Average sleep</span>
+            <span class="summary-value">${avgSleep} hours</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Creation days</span>
+            <span class="summary-value">${createdDays} days</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-label">Beast mode days</span>
+            <span class="summary-value">${beastDays} days</span>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-btn primary" onclick="closeModal('weeklySummaryModal')">Got it!</button>
+        </div>
+      `;
+
+      document.getElementById('weeklySummaryContent').innerHTML = summaryHTML;
+      document.getElementById('weeklySummaryModal').classList.add('active');
+    }
+
+    function clearAllData() {
+      if (confirm('⚠️ Are you sure you want to delete ALL your check-ins? This cannot be undone!')) {
+        if (confirm('Really? This will permanently delete everything!')) {
+          checkins = [];
+          saveData();
+          showToast('All data cleared');
+        }
+      }
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Close modal on outside click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+
+    // Make functions global
+    window.deleteEntry = deleteEntry;
+    window.exportData = exportData;
+    window.importData = importData;
+    window.processImport = processImport;
+    window.showWeeklySummary = showWeeklySummary;
+    window.clearAllData = clearAllData;
+    window.closeModal = closeModal;
+  </script>
+
+</body>
+</html>

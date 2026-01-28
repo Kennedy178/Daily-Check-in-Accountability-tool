@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Made with Love](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://github.com/Kennedy178/Daily-Check-in-Accountability-tool)
 
-[Live Demo]([https://kennedy178.github.io/Daily-Check-in-Accountability-tool/](https://dailycheckintool.netlify.app/)) | [Report Bug](https://github.com/Kennedy178/Daily-Check-in-Accountability-tool/issues) | [Request Feature](https://github.com/Kennedy178/Daily-Check-in-Accountability-tool/issues)
+[Live Demo](https://dailycheckintool.netlify.app/) | [Report Bug](https://github.com/Kennedy178/Daily-Check-in-Accountability-tool/issues) | [Request Feature](https://github.com/Kennedy178/Daily-Check-in-Accountability-tool/issues)
 
 ---
 

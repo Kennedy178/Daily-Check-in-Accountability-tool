@@ -8,7 +8,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-  <style>
+ 
+ 
+ <!-- PWA Manifest -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff4500">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Beast Mode">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+ 
+ 
+ <style>
     * {
       margin: 0;
       padding: 0;
@@ -47,6 +58,82 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+/* PWA Install Notice */
+.pwa-notice {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  animation: slideInRight 0.5s ease-out;
+  display: none;
+}
+
+.pwa-notice.show {
+  display: block;
+}
+
+@keyframes slideInRight {
+  from { 
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.pwa-notice-content {
+  background: var(--bg-surface);
+  border: 1px solid var(--accent-orange);
+  border-radius: 15px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 40px rgba(255, 69, 0, 0.2);
+}
+
+.pwa-notice-icon {
+  font-size: 1.2rem;
+}
+
+.pwa-notice-text {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.pwa-notice-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 5px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.pwa-notice-close:hover {
+  color: var(--accent-orange);
+}
+
+@keyframes slideOutRight {
+  to { 
+    opacity: 0;
+    transform: translateX(100px);
+  }
+}
+
+@media (max-width: 768px) {
+  .pwa-notice {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+  }
+}
 
     /* Header */
     header {
@@ -1029,6 +1116,14 @@
   <div class="container">
     <!-- Header -->
     <header>
+      <!-- PWA Install Notice (shows once) -->
+<div class="pwa-notice" id="pwaNotice">
+  <div class="pwa-notice-content">
+    <span class="pwa-notice-icon">📱</span>
+    <span class="pwa-notice-text">Install this app for offline access</span>
+    <button class="pwa-notice-close" onclick="dismissPwaNotice()">×</button>
+  </div>
+</div>
       <h1>🔥 Beast Mode Check-In</h1>
       <p class="tagline">"No rescue is coming. You are the plan. You are the backup."</p>
       <div class="header-actions">
@@ -1303,6 +1398,8 @@
     function init() {
       // Set today's date
       dateInput.valueAsDate = new Date();
+        // Show PWA notice (once only)
+        showPwaNotice();
       
       // Setup toggle buttons
       document.querySelectorAll('.toggle-btn').forEach(btn => {
@@ -1324,6 +1421,26 @@
       renderHistory();
       updateStats();
     }
+    function showPwaNotice() {
+  // Check if already dismissed
+  const dismissed = localStorage.getItem('pwaNoticeDismissed');
+  
+  // Only show if not dismissed and app is installable
+  if (!dismissed && !window.matchMedia('(display-mode: standalone)').matches) {
+    setTimeout(() => {
+      document.getElementById('pwaNotice').classList.add('show');
+    }, 3000); // Show after 3 seconds
+  }
+}
+
+function dismissPwaNotice() {
+  const notice = document.getElementById('pwaNotice');
+  notice.style.animation = 'slideOutRight 0.3s ease-out';
+  setTimeout(() => {
+    notice.classList.remove('show');
+    localStorage.setItem('pwaNoticeDismissed', 'true');
+  }, 300);
+}
 
     function handleToggle(e) {
       e.preventDefault();
@@ -1682,6 +1799,14 @@
     window.showWeeklySummary = showWeeklySummary;
     window.clearAllData = clearAllData;
     window.closeModal = closeModal;
+  
+  // Register Service Worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(() => console.log('Service Worker registered'))
+      .catch((err) => console.log('Service Worker registration failed:', err));
+  }
+
   </script>
 
 </body>

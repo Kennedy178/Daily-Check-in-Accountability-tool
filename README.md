@@ -51,6 +51,12 @@
 - **Smooth Animations** - Polished interactions and transitions
 - **Keyboard Accessible** - Full keyboard navigation support
 
+### 📱 Progressive Web App
+- **Installable** - Click install on either mobile or desktop
+- **Offline-First** - Works without internet connection
+- **Native Experience** - Runs like a native app with no browser UI
+- **Auto-Updates** - Service worker ensures you always have the latest version  
+  
 ---
 
 ## 🚀 Quick Start

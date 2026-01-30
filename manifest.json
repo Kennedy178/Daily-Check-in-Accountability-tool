@@ -1,0 +1,24 @@
+{
+  "name": "Beast Mode Daily Check-In",
+  "short_name": "Beast Mode",
+  "description": "Daily accountability tracker for building unstoppable habits",
+  "start_url": "./checkin.html",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#ff4500",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

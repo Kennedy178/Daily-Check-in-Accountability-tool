@@ -919,6 +919,56 @@
     }
 
 
+/* Pagination Controls */
+.pagination-controls {
+  padding: 25px 40px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Outfit', sans-serif;
+}
+
+.pagination-btn:hover {
+  border-color: var(--accent-orange);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 69, 0, 0.15);
+}
+
+.pagination-btn.secondary {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+}
+
+.pagination-btn.secondary:hover {
+  color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .pagination-controls {
+    padding: 20px 25px;
+  }
+  
+  .pagination-btn {
+    width: 100%;
+  }
+}    
+
+
+
 /* Footer */
     .footer {
       background: var(--bg-surface);
@@ -1293,6 +1343,10 @@
           </tbody>
         </table>
       </div>
+          <!-- Pagination Controls -->
+    <div class="pagination-controls" id="paginationControls" style="display: none;">
+      <!-- Buttons will be injected here -->
+    </div>
     </div>
 
 <!-- Footer -->
@@ -1375,6 +1429,8 @@
       mode: null,
       deepwork: null
     };
+    let displayLimit = 10; // Show 10 entries initially
+
 
     // DOM elements
     const form = document.getElementById('checkinForm');
@@ -1391,6 +1447,7 @@
     const deepWorkRateEl = document.getElementById('deepWorkRate');
     const consistencyScoreEl = document.getElementById('consistencyScore');
     const searchInput = document.getElementById('searchHistory');
+    const INCREMENT = 10;  // Load 10 more each time
 
     // Initialize
     init();
@@ -1513,47 +1570,103 @@ function dismissPwaNotice() {
       updateStats();
     }
 
-    function renderHistory(filter = '') {
-      const filtered = filter 
-        ? checkins.filter(e => 
-            e.date.includes(filter) || 
-            e.smallWin.toLowerCase().includes(filter.toLowerCase()) ||
-            e.improveTomorrow.toLowerCase().includes(filter.toLowerCase())
-          )
-        : checkins;
 
-      if (filtered.length === 0) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="7" class="empty-state">
-              <div class="empty-state-icon">📋</div>
-              <p>${filter ? 'No matches found.' : 'No check-ins yet. Start your journey today!'}</p>
-            </td>
-          </tr>
-        `;
-        return;
-      }
+function renderHistory(filter = '') {
+  const filtered = filter 
+    ? checkins.filter(e => 
+        e.date.includes(filter) || 
+        e.smallWin.toLowerCase().includes(filter.toLowerCase()) ||
+        e.improveTomorrow.toLowerCase().includes(filter.toLowerCase())
+      )
+    : checkins;
 
-      const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
-      
-      tableBody.innerHTML = sorted.map(entry => {
-        const moodClass = entry.mood >= 8 ? 'mood-high' : entry.mood >= 5 ? 'mood-mid' : 'mood-low';
-        const originalIndex = checkins.findIndex(e => e.date === entry.date);
-        const modeEmoji = getModeEmoji(entry.createConsume);
+  if (filtered.length === 0) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="7" class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <p>${filter ? 'No matches found.' : 'No check-ins yet. Start your journey today!'}</p>
+        </td>
+      </tr>
+    `;
+    // Hide pagination controls
+    document.getElementById('paginationControls').style.display = 'none';
+    return;
+  }
 
-        return `
-          <tr>
-            <td class="table-date">${formatDate(entry.date)}</td>
-            <td>${modeEmoji} ${capitalizeFirst(entry.createConsume)}</td>
-            <td class="table-text" title="${entry.smallWin}">${entry.smallWin}</td>
-            <td class="table-text" title="${entry.improveTomorrow}">${entry.improveTomorrow}</td>
-            <td class="table-mood ${moodClass}">${entry.mood}/10</td>
-            <td>${entry.sleepHours}h</td>
-            <td><button class="delete-btn" onclick="deleteEntry(${originalIndex})">Delete</button></td>
-          </tr>
-        `;
-      }).join('');
-    }
+  const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
+  
+  // Determine how many to show
+  const isSearching = filter.length > 0;
+  const entriesToShow = isSearching ? sorted : sorted.slice(0, displayLimit);
+  const hasMore = !isSearching && sorted.length > displayLimit;
+  const canCollapse = !isSearching && displayLimit > 10;
+  
+  tableBody.innerHTML = entriesToShow.map(entry => {
+    const moodClass = entry.mood >= 8 ? 'mood-high' : entry.mood >= 5 ? 'mood-mid' : 'mood-low';
+    const originalIndex = checkins.findIndex(e => e.date === entry.date);
+    const modeEmoji = getModeEmoji(entry.createConsume);
+
+    return `
+      <tr>
+        <td class="table-date">${formatDate(entry.date)}</td>
+        <td>${modeEmoji} ${capitalizeFirst(entry.createConsume)}</td>
+        <td class="table-text" title="${entry.smallWin}">${entry.smallWin}</td>
+        <td class="table-text" title="${entry.improveTomorrow}">${entry.improveTomorrow}</td>
+        <td class="table-mood ${moodClass}">${entry.mood}/10</td>
+        <td>${entry.sleepHours}h</td>
+        <td><button class="delete-btn" onclick="deleteEntry(${originalIndex})">Delete</button></td>
+      </tr>
+    `;
+  }).join('');
+
+  // Show/hide pagination controls
+  updatePaginationControls(hasMore, canCollapse, isSearching, sorted.length);
+}
+
+function updatePaginationControls(hasMore, canCollapse, isSearching, totalEntries) {
+  const controls = document.getElementById('paginationControls');
+  
+  if (isSearching || (!hasMore && !canCollapse)) {
+    controls.style.display = 'none';
+    return;
+  }
+
+  controls.style.display = 'flex';
+  
+  let html = '';
+  
+  if (hasMore) {
+    html += `
+      <button class="pagination-btn" onclick="loadMore()">
+        Show 10 More <span style="opacity: 0.6;">(${totalEntries - displayLimit} remaining)</span>
+      </button>
+    `;
+  }
+  
+  if (canCollapse) {
+    html += `
+      <button class="pagination-btn secondary" onclick="showLess()">
+        Show Less
+      </button>
+    `;
+  }
+  
+  controls.innerHTML = html;
+}
+
+function loadMore() {
+  displayLimit += INCREMENT;
+  renderHistory();
+}
+
+function showLess() {
+  displayLimit = 10;
+  renderHistory();
+  // Scroll back to table
+  document.getElementById('historyTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 
     function filterHistory() {
       renderHistory(searchInput.value);
@@ -1799,6 +1912,9 @@ function dismissPwaNotice() {
     window.showWeeklySummary = showWeeklySummary;
     window.clearAllData = clearAllData;
     window.closeModal = closeModal;
+    window.loadMore = loadMore;
+    window.showLess = showLess;
+
   
   // Register Service Worker for PWA
   if ('serviceWorker' in navigator) {

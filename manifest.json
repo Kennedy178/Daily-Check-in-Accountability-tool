@@ -2,7 +2,7 @@
   "name": "Beast Mode Daily Check-In",
   "short_name": "Beast Mode",
   "description": "Daily accountability tracker for building unstoppable habits",
-  "start_url": "./checkin.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#ff4500",

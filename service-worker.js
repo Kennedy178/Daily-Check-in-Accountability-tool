@@ -1,6 +1,7 @@
 const CACHE_NAME = 'beast-mode-v2'; // ⚠️ Changed version to force update
 const urlsToCache = [
-  './checkin.html',
+  './',
+  './index.html',
   'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap'
 ];
 
